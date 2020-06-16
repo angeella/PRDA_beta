@@ -31,8 +31,13 @@ match_call <- function(definition = sys.function(sys.parent()),
 
 #----    is_single_numeric    ----
 
-is_single_numeric <- function(x){
-  length(x) == 1L && is.finite(x)
+is_single_numeric <- function(x, infinite = FALSE){
+
+  if(infinite){
+    length(x) == 1L && is.numeric(x)
+  }else{
+    length(x) == 1L && is.finite(x)
+  }
 }
 
 #----    Select arguments    ----
@@ -49,7 +54,7 @@ is_single_numeric <- function(x){
 
 define_conf_level <- function(arguments){
 
-  if("conf.level" %in% names(arguments)){
+  if("conf.level" %in% names(arguments) && arguments$conf.level != (1 - arguments$sig_level)){
     warning("conf.level is set according to sig_level.")
   }
  1 - arguments$sig_level

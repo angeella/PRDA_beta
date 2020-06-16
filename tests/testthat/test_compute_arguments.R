@@ -6,7 +6,7 @@ library(PRDAbeta)
 
 #----    input checks    ----
 
-context("Evaluate my test results")
+context("Compute arguments")
 
 x <- c(-32, -49, 157, 116, 114, 170, 162, 220, -55, 97, 151, 160, 145, 78, 116)
 y <- c(-30, 102, 184, 28, -89, -40, -43, -129, 53, 119, 44, 35, 189, 137, -68)
@@ -20,23 +20,13 @@ sig_level = .10
 mu = .5
 mu2 = -.5
 
-error_spearman <- "correlation with method = 'spearman' is not implemented. Only method = 'pearson' is available."
-error_kendall <- "correlation with method = 'kendall' is not implemented. Only method = 'pearson' is available."
-
-#----    eval_test_method    ----
-
-test_that("evaluate the correct test method", {
-  expect_match(eval_test_method(effect_type = "cohen_d", effect_size = .3, sample_n1 = nx, sample_n2 = NULL), "one_sample")
-  expect_match(eval_test_method(effect_type = "cohen_d", effect_size = .3, sample_n1 = nx, sample_n2 = ny, paired=TRUE), "paired")
-  expect_match(eval_test_method(effect_type = "cohen_d", effect_size = .3, sample_n1 = nx, sample_n2 = ny, var.equal=TRUE), "two_samples")
-  expect_match(eval_test_method(effect_type = "cohen_d", effect_size = .3, sample_n1 = nx, sample_n2 = ny), "welch")
-
-  expect_match(eval_test_method(effect_type = "correlation", effect_size = .3, sample_n1 = nx, sample_n2 = ny), "pearson")
-  expect_match(eval_test_method(effect_type = "correlation", effect_size = .3, sample_n1 = nx, method = "pearson"), "pearson")
-  expect_error(eval_test_method(effect_type = "correlation", effect_size = .3, sample_n1 = nx, method = "spearman"), error_spearman)
-  expect_error(eval_test_method(effect_type = "correlation", effect_size = .3, sample_n1 = nx, method = "kendall"), error_kendall)
-})
-
+with_seed <- function(seed, code) {
+  code <- substitute(code)
+  orig.seed <- .Random.seed
+  on.exit(.Random.seed <<- orig.seed)
+  set.seed(seed)
+  eval.parent(code)
+}
 
 #----    compute_df    ----
 
@@ -90,4 +80,5 @@ test_that("evaluate the correct critical effect", {
                list(df = nx-2, critical_effect = qt(sig_level, df = nx-2)/sqrt(nx-2+qt(sig_level, df = nx-2)^2)))
 
   })
+
 #----
